@@ -338,6 +338,7 @@ impl Build {
             "powerpc-unknown-netbsd" => "BSD-generic32",
             "powerpc64-unknown-freebsd" => "BSD-ppc64",
             "powerpc64-unknown-linux-gnu" => "linux-ppc64",
+            "powerpc64-unknown-linux-gnuelfv2" => "linux-ppc64",
             "powerpc64-unknown-linux-musl" => "linux-ppc64",
             "powerpc64-chimera-linux-musl" => "linux-ppc64",
             "powerpc64le-unknown-freebsd" => "BSD-ppc64le",
@@ -346,6 +347,7 @@ impl Build {
             "powerpc64le-alpine-linux-musl" => "linux-ppc64le",
             "powerpc64le-chimera-linux-musl" => "linux-ppc64le",
             "riscv64gc-unknown-freebsd" => "BSD-riscv64",
+            "riscv64a23-unknown-linux-gnu" => "linux64-riscv64",
             "riscv64gc-unknown-linux-gnu" => "linux64-riscv64",
             "riscv64gc-unknown-linux-musl" => "linux64-riscv64",
             "riscv64-alpine-linux-musl" => "linux64-riscv64",
@@ -381,8 +383,10 @@ impl Build {
             "wasm32-unknown-unknown" => "gcc",
             "wasm32-wasi" => "gcc",
             "aarch64-apple-ios" => "ios64-cross",
-            "x86_64-apple-ios" => "iossimulator-xcrun",
-            "aarch64-apple-ios-sim" => "iossimulator-xcrun",
+            "aarch64-apple-visionos" => "ios64-cross",
+            "x86_64-apple-ios" => "iossimulator-x86_64-xcrun",
+            "aarch64-apple-ios-sim" => "iossimulator-arm64-xcrun",
+            "aarch64-apple-visionos-sim" => "iossimulator-arm64-xcrun",
             "aarch64-apple-ios-macabi" => "darwin64-arm64-cc",
             "x86_64-apple-ios-macabi" => "darwin64-x86_64-cc",
             "aarch64-unknown-linux-ohos" => "linux-aarch64",
@@ -458,7 +462,7 @@ impl Build {
                 }
 
                 // cargo-lipo specifies this but OpenSSL complains
-                if target.contains("apple-ios") {
+                if target.contains("apple-ios") || target.contains("apple-visionos") {
                     if arg == "-isysroot" {
                         is_isysroot = true;
                         continue;
@@ -479,7 +483,27 @@ impl Build {
                 configure.arg(arg);
             }
 
-            if os.contains("iossimulator") {
+            if target == "aarch64-apple-visionos" {
+                if let Some(ref isysr) = ios_isysroot {
+                    configure.env(
+                        "CC",
+                        &format!(
+                            "xcrun -sdk xros cc -isysroot {}",
+                            sanitize_sh(&Path::new(isysr))
+                        ),
+                    );
+                }
+            } else if target == "aarch64-apple-visionos-sim" {
+                if let Some(ref isysr) = ios_isysroot {
+                    configure.env(
+                        "CC",
+                        &format!(
+                            "xcrun -sdk xrsimulator cc -isysroot {}",
+                            sanitize_sh(&Path::new(isysr))
+                        ),
+                    );
+                }
+            } else if os.contains("iossimulator") {
                 if let Some(ref isysr) = ios_isysroot {
                     configure.env(
                         "CC",
