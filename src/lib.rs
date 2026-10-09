@@ -751,6 +751,38 @@ fn sanitize_sh(path: &Path) -> String {
     }
 }
 
+// Rust targets whose selected OpenSSL Configuration target adds `-latomic`;
+// based on openssl/Configurations/10-main.conf.
+const TARGETS_NEEDING_LATOMIC: &[&str] = &[
+    // linux-armv4 inherits linux-latomic.
+    "arm-linux-androideabi",
+    "armv7-linux-androideabi",
+    "arm-unknown-linux-gnueabi",
+    "arm-unknown-linux-gnueabihf",
+    "arm-unknown-linux-musleabi",
+    "arm-unknown-linux-musleabihf",
+    "arm-chimera-linux-musleabihf",
+    "armv5te-unknown-linux-gnueabi",
+    "armv5te-unknown-linux-musleabi",
+    "armv7-unknown-linux-gnueabi",
+    "armv7-unknown-linux-musleabi",
+    "armv7-unknown-linux-gnueabihf",
+    "armv7-unknown-linux-musleabihf",
+    "armv7-alpine-linux-musleabihf",
+    "armv7-chimera-linux-musleabihf",
+    // linux-mips32 inherits linux-latomic.
+    "mips-unknown-linux-gnu",
+    "mips-unknown-linux-musl",
+    "mipsel-unknown-linux-gnu",
+    "mipsel-unknown-linux-musl",
+    // linux-ppc inherits linux-latomic.
+    "powerpc-unknown-linux-gnu",
+    "powerpc-unknown-linux-gnuspe",
+    "powerpc-chimera-linux-musl",
+    // linux64-sparcv9 adds -latomic directly.
+    "sparc64-unknown-linux-gnu",
+];
+
 impl Artifacts {
     pub fn include_dir(&self) -> &Path {
         &self.include_dir
@@ -764,10 +796,17 @@ impl Artifacts {
         &self.libs
     }
 
+    pub fn needs_latomic(&self) -> bool {
+        TARGETS_NEEDING_LATOMIC.contains(&self.target.as_str())
+    }
+
     pub fn print_cargo_metadata(&self) {
         println!("cargo:rustc-link-search=native={}", self.lib_dir.display());
         for lib in self.libs.iter() {
             println!("cargo:rustc-link-lib=static={}", lib);
+        }
+        if self.needs_latomic() {
+            println!("cargo:rustc-link-lib=atomic");
         }
         println!("cargo:include={}", self.include_dir.display());
         println!("cargo:lib={}", self.lib_dir.display());
