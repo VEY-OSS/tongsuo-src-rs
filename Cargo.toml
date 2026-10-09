@@ -22,6 +22,9 @@ exclude = [
   'tongsuo/validation-android.png',
 
   'tongsuo/util/perl/OpenSSL/Test',
+
+  # required files
+  '!tongsuo/**/build.info',
 ]
 
 [features]
