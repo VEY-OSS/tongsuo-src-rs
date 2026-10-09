@@ -1,6 +1,6 @@
 [package]
 name = "tongsuo-src"
-version = "850.0.3+8.5.0-pre1"
+version = "850.1.0+8.5.0"
 edition = "2024"
 license = "MIT OR Apache-2.0"
 readme = "README.md"
@@ -14,13 +14,14 @@ exclude = [
   '.gitmodules',
   'ci',
 
-  'tongsuo/fuzz/corpora/*',
-  'tongsuo/test/recipes/*',
-  'tongsuo/rpm/*',
   'tongsuo/.gitattributes',
 
   'tongsuo/test',
   'tongsuo/fuzz',
+  'tongsuo/rpm',
+  'tongsuo/validation-android.png',
+
+  'tongsuo/util/perl/OpenSSL/Test',
 ]
 
 [features]
