@@ -13,10 +13,14 @@ exclude = [
   '.gitignore',
   '.gitmodules',
   'ci',
+
   'tongsuo/fuzz/corpora/*',
   'tongsuo/test/recipes/*',
   'tongsuo/rpm/*',
   'tongsuo/.gitattributes',
+
+  'tongsuo/test',
+  'tongsuo/fuzz',
 ]
 
 [features]
